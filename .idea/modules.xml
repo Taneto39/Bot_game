@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Borntodev_Devlab/.idea/Borntodev_Devlab.iml" filepath="$PROJECT_DIR$/../Borntodev_Devlab/.idea/Borntodev_Devlab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Bot_game.iml" filepath="$PROJECT_DIR$/.idea/Bot_game.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../CP3-Tanet-Mahatchariyapong/.idea/CP3-Tanet-Mahatchariyapong.iml" filepath="$PROJECT_DIR$/../CP3-Tanet-Mahatchariyapong/.idea/CP3-Tanet-Mahatchariyapong.iml" />
+    </modules>
+  </component>
+</project>
