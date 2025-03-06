@@ -5,7 +5,7 @@ import autopy
 
 def find():
     screen = autopy.bitmap.capture_screen()
-    pics_name = ['heart.png', 'result.png', 'start1.png', 'start2.png']
+    pics_name = ['result.png', 'start1.png', 'start2.png']
     ep = int(input("ep:"))
     for pic_name in pics_name:
         a = autopy.bitmap.Bitmap.open(f'pic\\{ep}\\{pic_name}')
