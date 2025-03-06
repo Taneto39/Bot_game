@@ -49,7 +49,7 @@ def open_box(ep):
 def get_box(loop, sec, ep):
     for _ in range(loop):
         print('Get reward.')
-        autopy.mouse.move(game_pos()[0] + random.randrange(639, 695), game_pos()[1] + random.randrange(536, 725))
+        autopy.mouse.move(game_pos()[0] + random.randrange(541, 730), game_pos()[1] + random.randrange(642, 701))
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
@@ -85,7 +85,7 @@ def is_run_correct(fast: bool):
             pos = game_pos()
             if screen.find_bitmap(a):
                 print('Cookie\'s running')
-                autopy.mouse.move(pos[0] + random.randrange(588, 695), pos[1] + random.randrange(388, 428))
+                autopy.mouse.move(pos[0] + random.randrange(588, 695), pos[1] + random.randrange(318, 428))
                 autopy.mouse.click()
                 return
             print('No, maybe try again.')
