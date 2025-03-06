@@ -54,7 +54,7 @@ def get_box(loop, sec):
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic\\start1.png')
+        a = autopy.bitmap.Bitmap.open('pic/5/start1.png')
         if screen.find_bitmap(a):
             print('Got reward.')
             return
@@ -68,7 +68,7 @@ def is_run_correct():
     for _ in range(500):
         print('Is cookie running?')
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic\\heart.png')
+        a = autopy.bitmap.Bitmap.open('pic/5/heart.png')
         pos = game_pos()
         if screen.find_bitmap(a):
             print('Cookie\'s running')
@@ -126,7 +126,7 @@ def notify_error_message(path):
 
 def start1_pos():
     screen = autopy.bitmap.capture_screen()
-    start1 = autopy.bitmap.Bitmap.open('pic\\start1.png')
+    start1 = autopy.bitmap.Bitmap.open('pic/5/start1.png')
     return screen.find_bitmap(start1)
 
 

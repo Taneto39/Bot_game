@@ -53,7 +53,7 @@ def get_box(loop, sec):
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic\\start1.png')
+        a = autopy.bitmap.Bitmap.open('pic/5/start1.png')
         if screen.find_bitmap(a):
             print('Got reward.')
             return
@@ -67,7 +67,7 @@ def is_run_correct():
     for _ in range(10):
         print('Is cookie running?')
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic\\heart.png')
+        a = autopy.bitmap.Bitmap.open('pic/5/heart.png')
         if screen.find_bitmap(a):
             print('Cookie\'s running')
             return
@@ -85,9 +85,6 @@ def captcha_check():
         captcha = autopy.bitmap.Bitmap.open('captcha\\captcha.png')
         if screen.find_bitmap(captcha):
             print('Captcha\'s caught. Send Notification.')
-            # access_token = 'U3AaIXQ7WKcTwDQBuYOCKJWe1E88gpmmK6cmJphVVPp'
-            # notify = LineNotify(access_token)
-            # notify.send('Captcha is caught!'
             input()
         time.sleep(1)
     else:
@@ -111,18 +108,11 @@ def record_error():
         f.write(f'{dt}, Error.\n')
     dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
     autopy.bitmap.capture_screen().save(f'error_pic\\error{dt}.png')
-    # notify_error_message(f'error_pic\\error{dt}.png')
-
-
-# def notify_error_message(path):
-#     access_token = 'U3AaIXQ7WKcTwDQBuYOCKJWe1E88gpmmK6cmJphVVPp'
-#     notify = LineNotify(access_token)
-#     notify.send('Exception is caught', image_path=path)
 
 
 def start1_pos():
     screen = autopy.bitmap.capture_screen()
-    start1 = autopy.bitmap.Bitmap.open('pic\\start1.png')
+    start1 = autopy.bitmap.Bitmap.open('pic/5/start1.png')
     return screen.find_bitmap(start1)
 
 
@@ -179,6 +169,7 @@ def reset_game():
             else:
                 print('Not found! Find again..')
 
+
 def main():
     run_count = 0
     while True:
@@ -195,4 +186,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # reset_game()
