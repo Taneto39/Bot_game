@@ -2,7 +2,6 @@ import random
 import datetime
 import autopy
 import time
-from line_notify import LineNotify
 
 
 def game_pos():
@@ -50,7 +49,7 @@ def open_box():
 def get_box(loop, sec):
     for _ in range(loop):
         print('Get reward.')
-        autopy.mouse.move(game_pos()[0] + random.randrange(845, 891), game_pos()[1] + random.randrange(770, 859))
+        autopy.mouse.move(game_pos()[0] + random.randrange(639, 695), game_pos()[1] + random.randrange(536, 725))
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
@@ -65,18 +64,15 @@ def get_box(loop, sec):
 
 
 def is_run_correct():
-    for _ in range(500):
+    for _ in range(10):
         print('Is cookie running?')
         screen = autopy.bitmap.capture_screen()
         a = autopy.bitmap.Bitmap.open('pic/5/heart.png')
-        pos = game_pos()
         if screen.find_bitmap(a):
             print('Cookie\'s running')
-            autopy.mouse.move(pos[0] + random.randrange(732, 870), pos[1] + random.randrange(410, 514))
-            autopy.mouse.click()
             return
         print('No, maybe try again.')
-        time.sleep(0.1)
+        time.sleep(5)
     else:
         record_error()
         return
@@ -89,9 +85,6 @@ def captcha_check():
         captcha = autopy.bitmap.Bitmap.open('captcha\\captcha.png')
         if screen.find_bitmap(captcha):
             print('Captcha\'s caught. Send Notification.')
-            access_token = 'U3AaIXQ7WKcTwDQBuYOCKJWe1E88gpmmK6cmJphVVPp'
-            notify = LineNotify(access_token)
-            notify.send('Captcha is caught!')
             input()
         time.sleep(1)
     else:
@@ -115,13 +108,6 @@ def record_error():
         f.write(f'{dt}, Error.\n')
     dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
     autopy.bitmap.capture_screen().save(f'error_pic\\error{dt}.png')
-    notify_error_message(f'error_pic\\error{dt}.png')
-
-
-def notify_error_message(path):
-    access_token = 'U3AaIXQ7WKcTwDQBuYOCKJWe1E88gpmmK6cmJphVVPp'
-    notify = LineNotify(access_token)
-    notify.send('Exception is caught', image_path=path)
 
 
 def start1_pos():
@@ -153,7 +139,7 @@ def reset_game():
         else:
             continue
         print('Click clear all.')
-        autopy.mouse.move(game_pos()[0] + random.randrange(1051, 1140), game_pos()[1] + random.randrange(104, 112))
+        autopy.mouse.move(game_pos()[0] + 894, game_pos()[1] + 95)
         autopy.mouse.click()
         time.sleep(1)
         print('Find CookieRun Icon.')
@@ -167,12 +153,21 @@ def reset_game():
             time.sleep(1)
         else:
             continue
-        time.sleep(15)
-        print('Is game ready?')
-        pos = start1_pos()
-        if pos:
-            print('Game\'s ready!!')
-            return
+        # time.sleep(15)
+        # print('Is game ready?')
+        # pos = start1_pos()
+        # if pos:
+        #     print('Game\'s ready!!')
+        #     return
+        for _ in range(12):
+            time.sleep(5)
+            print('Is game ready?')
+            pos = start1_pos()
+            if pos:
+                print('Game\'s ready!!')
+                return
+            else:
+                print('Not found! Find again..')
 
 
 def main():
