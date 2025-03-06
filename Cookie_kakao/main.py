@@ -10,10 +10,10 @@ def game_pos():
     return screen.find_bitmap(icon)
 
 
-def click(pic_name, loop, sec):
+def click(pic_name, loop, sec, ep):
     for _ in range(loop):
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open(f'pic\\{pic_name}')
+        a = autopy.bitmap.Bitmap.open(f'pic\\{ep}\\{pic_name}')
         print(f'Find {pic_name} in screen...')
         pos = screen.find_bitmap(a)
         if pos:
@@ -28,7 +28,7 @@ def click(pic_name, loop, sec):
         return
 
 
-def open_box():
+def open_box(ep):
     for _ in range(10):
         screen = autopy.bitmap.capture_screen()
         a = autopy.bitmap.Bitmap.open(f'pic\\open_box.png')
@@ -43,17 +43,17 @@ def open_box():
         time.sleep(1)
     else:
         return
-    get_box(10, 1)
+    get_box(10, 1, ep)
 
 
-def get_box(loop, sec):
+def get_box(loop, sec, ep):
     for _ in range(loop):
         print('Get reward.')
         autopy.mouse.move(game_pos()[0] + random.randrange(639, 695), game_pos()[1] + random.randrange(536, 725))
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic/5/start1.png')
+        a = autopy.bitmap.Bitmap.open(f'pic/{ep}/start1.png')
         if screen.find_bitmap(a):
             print('Got reward.')
             return
@@ -67,7 +67,7 @@ def is_run_correct():
     for _ in range(10):
         print('Is cookie running?')
         screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic/5/heart.png')
+        a = autopy.bitmap.Bitmap.open('pic/heart.png')
         if screen.find_bitmap(a):
             print('Cookie\'s running')
             return
@@ -171,13 +171,14 @@ def reset_game():
 
 
 def main():
+    ep = int(input("Enter Ep.:"))
     run_count = 0
     while True:
-        click('start1.png', 30, 1)
-        click('start2.png', 30, 1)
+        click('start1.png', 30, 1, ep)
+        click('start2.png', 30, 1, ep)
         is_run_correct()
-        click('result.png', 60, 5)
-        open_box()
+        click('result.png', 60, 5, ep)
+        open_box(ep)
         captcha_check()
         check_before_next_loop()
         run_count += 1
