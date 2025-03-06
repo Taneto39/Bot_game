@@ -113,20 +113,20 @@ def record_error():
         f'C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\error_pic\\error_{dt}.png')
 
 
-def start1_pos():
+def start1_pos(ep):
     screen = autopy.bitmap.capture_screen()
-    start1 = autopy.bitmap.Bitmap.open('pic/5/start1.png')
+    start1 = autopy.bitmap.Bitmap.open(f'pic/{ep}/start1.png')
     return screen.find_bitmap(start1)
 
 
-def check_before_next_loop():
-    if start1_pos():
+def check_before_next_loop(ep):
+    if start1_pos(ep):
         return
     else:
-        reset_game()
+        reset_game(ep)
 
 
-def reset_game():
+def reset_game(ep):
     record_error()
     print('Error! Reset game...')
     while True:
@@ -165,7 +165,7 @@ def reset_game():
         for _ in range(12):
             time.sleep(5)
             print('Is game ready?')
-            pos = start1_pos()
+            pos = start1_pos(ep)
             if pos:
                 print('Game\'s ready!!')
                 return
@@ -183,7 +183,7 @@ def main():
         click('result.png', 60, 5, ep)
         open_box(ep)
         captcha_check()
-        check_before_next_loop()
+        check_before_next_loop(ep)
         run_count += 1
         record_trans(run_count, 'Run')
 
