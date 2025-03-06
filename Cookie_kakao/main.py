@@ -63,19 +63,36 @@ def get_box(loop, sec, ep):
         return
 
 
-def is_run_correct():
-    for _ in range(10):
-        print('Is cookie running?')
-        screen = autopy.bitmap.capture_screen()
-        a = autopy.bitmap.Bitmap.open('pic/heart.png')
-        if screen.find_bitmap(a):
-            print('Cookie\'s running')
+def is_run_correct(fast: bool):
+    if not fast:
+        for _ in range(10):
+            print('Is cookie running?')
+            screen = autopy.bitmap.capture_screen()
+            a = autopy.bitmap.Bitmap.open('pic/heart.png')
+            if screen.find_bitmap(a):
+                print('Cookie\'s running')
+                return
+            print('No, maybe try again.')
+            time.sleep(5)
+        else:
+            record_error()
             return
-        print('No, maybe try again.')
-        time.sleep(5)
-    else:
-        record_error()
-        return
+    if fast:
+        for _ in range(500):
+            print('Is cookie running?')
+            screen = autopy.bitmap.capture_screen()
+            a = autopy.bitmap.Bitmap.open('pic/heart.png')
+            pos = game_pos()
+            if screen.find_bitmap(a):
+                print('Cookie\'s running')
+                autopy.mouse.move(pos[0] + random.randrange(588, 695), pos[1] + random.randrange(388, 428))
+                autopy.mouse.click()
+                return
+            print('No, maybe try again.')
+            time.sleep(0.1)
+        else:
+            record_error()
+            return
 
 
 def captcha_check():
@@ -175,11 +192,12 @@ def reset_game(ep):
 
 def main():
     ep = int(input("Enter Ep.:"))
+    fast = True if not input("Enable faststart? type something for Unable:") else False
     run_count = 0
     while True:
         click('start1.png', 30, 1, ep)
         click('start2.png', 30, 1, ep)
-        is_run_correct()
+        is_run_correct(fast)
         click('result.png', 60, 5, ep)
         open_box(ep)
         captcha_check()
