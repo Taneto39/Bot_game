@@ -92,7 +92,7 @@ def captcha_check():
 
 
 def record_trans(count, txt):
-    dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
+    # dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
     # autopy.bitmap.capture_screen().save(f'trans_pic\\{count:04}-{dt}.png')
     if count % 20 == 0:
         autopy.bitmap.capture_screen().save(
@@ -104,11 +104,13 @@ def record_trans(count, txt):
 
 
 def record_error():
-    with open("run_record.csv", mode='a', newline='', encoding='UTF-8') as f:
+    with open("C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\run_record.csv", mode='a', newline='',
+              encoding='UTF-8') as f:
         dt = datetime.datetime.now().strftime('%m%d/%y-%I:%M:%S %p')
         f.write(f'{dt}, Error.\n')
     dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
-    autopy.bitmap.capture_screen().save(f'error_pic\\error{dt}.png')
+    autopy.bitmap.capture_screen().save(
+        f'C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\error_pic\\error_{dt}.png')
 
 
 def start1_pos():
