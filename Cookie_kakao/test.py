@@ -1,5 +1,5 @@
-epsilon = 1
-while 1 + epsilon != 1:
-    epsilon /= 2
-    # print(epsilon)
-print(f'{epsilon:.}')
+from main import *
+import autopy
+
+pos = game_pos()
+autopy.mouse.move(pos[0] + 589, pos[1] + 318)
