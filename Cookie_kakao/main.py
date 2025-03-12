@@ -2,6 +2,15 @@ import random
 import datetime
 import autopy
 import time
+from linebot import LineBotApi
+from linebot.models import TextSendMessage
+
+
+CHANNEL_ACCESS_TOKEN = ("fdkj/piRdfWx2r5akI1dgyN7kW9bnCrXxio0MlhikwnPxSojWximYAwMTWeLIHLtvIjzQocn"
+                        "/0KFZ6Bbj8gW9jfZ82IbLymSkQBtb46ZRCNHYbTQ0dK4a7wOrB7f0u9CzK6LSaBcP5sjPqh+X/bBngdB04t89/1O"
+                        "/w1cDnyilFU=")
+MY_USER_ID = "U19a4825bc38592729c5b80681e107301"
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 
 
 def game_pos():
@@ -144,6 +153,8 @@ def check_before_next_loop(ep):
 
 
 def reset_game(ep):
+    message = TextSendMessage(text="Some error got caught.")
+    line_bot_api.push_message(MY_USER_ID, message)
     record_error()
     print('Error! Reset game...')
     while True:
