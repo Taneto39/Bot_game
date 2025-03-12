@@ -1,15 +1,16 @@
+import os
 import random
 import datetime
 import autopy
 import time
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
+from dotenv import load_dotenv
 
 
-CHANNEL_ACCESS_TOKEN = ("fdkj/piRdfWx2r5akI1dgyN7kW9bnCrXxio0MlhikwnPxSojWximYAwMTWeLIHLtvIjzQocn"
-                        "/0KFZ6Bbj8gW9jfZ82IbLymSkQBtb46ZRCNHYbTQ0dK4a7wOrB7f0u9CzK6LSaBcP5sjPqh+X/bBngdB04t89/1O"
-                        "/w1cDnyilFU=")
-MY_USER_ID = "U19a4825bc38592729c5b80681e107301"
+load_dotenv()
+CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
+MY_USER_ID = os.getenv("MY_USER_ID")
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 
 
