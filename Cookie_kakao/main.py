@@ -6,15 +6,23 @@ import time
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from dotenv import load_dotenv
+import easyocr
+import mss
+import numpy as np
 
 load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 MY_USER_ID = os.getenv("MY_USER_ID")
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 
+reader = easyocr.Reader(['en'], gpu=True)
+
+CLEAR_ALL_LOCATION = (890, 95)
 GET_BOX_LOCATION = ((541, 642), (730, 701))
 FAST_START_LOCATION = ((588, 318), (695, 428))
-CLEAR_ALL_LOCATION = (890, 95)
+BOX_AMOUNT_LOCATION = ((1050, 243), (1113, 290))
+COIN_AMOUNT_LOCATION = ((962, 404), (1123, 464))
+EXP_AMOUNT_LOCATION = ((962, 483), (1123, 547))
 
 
 def game_pos():
@@ -31,6 +39,9 @@ def click(pic_name, loop, sec, ep):
         pos = screen.find_bitmap(a)
         if pos:
             print(f'Found! click.')
+            if pic_name == "result.png":
+                time.sleep(5)
+                record_result()
             autopy.mouse.move(pos[0] + random.randrange(a.width), pos[1] + random.randrange(a.height))
             autopy.mouse.click()
             break
@@ -123,24 +134,57 @@ def captcha_check():
         return
 
 
-def record_trans(count, txt):
-    # dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
-    # autopy.bitmap.capture_screen().save(f'trans_pic\\{count:04}-{dt}.png')
+def capture(count):
     if count % 20 == 0:
         autopy.bitmap.capture_screen().save(
             'C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\recently.png')
+
+
+def text_reader(region, pos):
+    x1, y1 = region[0]
+    x2, y2 = region[1]
+
+    # Calculate the correct width & height
+    width, height = x2 - x1, y2 - y1
+    x1, y1 = region[0][0] + int(pos[0]), region[0][1] + int(pos[1])
+
+    with mss.mss() as sct:
+        screenshot = sct.grab({"top": y1, "left": x1, "width": width, "height": height})
+
+    img_array = np.array(screenshot)
+    result = reader.readtext(img_array, detail=0)
+    if result:
+        return result
+    else:
+        return 0
+
+
+def record_result():
     with open("C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\run_record.csv", mode='a', newline='',
               encoding='UTF-8') as f:
-        dt = datetime.datetime.now().strftime('%m%d/%y-%I:%M:%S %p')
-        f.write(f'{dt}, {txt}, {count} times in total.\n')
+        box = text_reader(BOX_AMOUNT_LOCATION, game_pos())[0][-1]
+        coin = text_reader(COIN_AMOUNT_LOCATION, game_pos())[0].replace(',', '')
+        exp = text_reader(EXP_AMOUNT_LOCATION, game_pos())[0].replace(',', '')
+        f.write(
+            f'{box}, {coin}, {exp}, ')
+
+
+def record_trans(count, status):
+    with open("C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\run_record.csv", mode='a', newline='',
+              encoding='UTF-8') as f:
+        dt = datetime.datetime.now().strftime('%Y/%m/%d %I:%M:%S %p')
+        if status == 0:
+            f.write(f'{dt}, ')
+        if status == 1:
+            f.write(f'{dt}, {count} times in total.\n')
 
 
 def record_error():
     with open("C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\run_record.csv", mode='a', newline='',
               encoding='UTF-8') as f:
-        dt = datetime.datetime.now().strftime('%m%d/%y-%I:%M:%S %p')
+        dt = datetime.datetime.now().strftime('%Y/%m/%d %I:%M:%S %p')
         f.write(f'{dt}, Error.\n')
-    dt = datetime.datetime.now().strftime('%m%d.%y_%H%M%S')
+    dt = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     autopy.bitmap.capture_screen().save(
         f'C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\error_pic\\error_{dt}.png')
 
@@ -214,13 +258,15 @@ def main():
     while True:
         click('start1.png', 30, 1, ep)
         click('start2.png', 30, 1, ep)
+        record_trans(run_count, 0)
         is_run_correct(fast)
         click('result.png', 60, 5, ep)
+        run_count += 1
+        record_trans(run_count, 1)
         open_box(ep)
         captcha_check()
         check_before_next_loop(ep)
-        run_count += 1
-        record_trans(run_count, 'Run')
+        capture(run_count)
 
 
 if __name__ == '__main__':
