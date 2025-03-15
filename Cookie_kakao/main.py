@@ -7,11 +7,13 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from dotenv import load_dotenv
 
-
 load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 MY_USER_ID = os.getenv("MY_USER_ID")
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+
+GET_BOX_LOCATION = ((541, 642), (730, 701))
+FAST_START_LOCATION = ((588, 318), (695, 428))
 
 
 def game_pos():
@@ -59,7 +61,8 @@ def open_box(ep):
 def get_box(loop, sec, ep):
     for _ in range(loop):
         print('Get reward.')
-        autopy.mouse.move(game_pos()[0] + random.randrange(541, 730), game_pos()[1] + random.randrange(642, 701))
+        autopy.mouse.move(game_pos()[0] + random.randrange(GET_BOX_LOCATION[0][0], GET_BOX_LOCATION[1][0]),
+                          game_pos()[1] + random.randrange(GET_BOX_LOCATION[0][1], GET_BOX_LOCATION[1][1]))
         autopy.mouse.click()
         time.sleep(sec)
         screen = autopy.bitmap.capture_screen()
@@ -95,7 +98,8 @@ def is_run_correct(fast: bool):
             pos = game_pos()
             if screen.find_bitmap(a):
                 print('Cookie\'s running')
-                autopy.mouse.move(pos[0] + random.randrange(588, 695), pos[1] + random.randrange(318, 428))
+                autopy.mouse.move(pos[0] + random.randrange(FAST_START_LOCATION[0][1], FAST_START_LOCATION[1][0]),
+                                  pos[1] + random.randrange(FAST_START_LOCATION[0][1], FAST_START_LOCATION[1][1]))
                 autopy.mouse.click()
                 return
             print('No, maybe try again.')
