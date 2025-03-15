@@ -28,7 +28,11 @@ EXP_AMOUNT_LOCATION = ((962, 483), (1123, 547))
 def game_pos():
     screen = autopy.bitmap.capture_screen()
     icon = autopy.bitmap.Bitmap.open('pic\\blueStackIcon.png')
-    return screen.find_bitmap(icon)
+    pos = screen.find_bitmap(icon)
+    if pos is None:
+        print("Error: BlueStack icon not found!")
+        return None
+    return pos
 
 
 def click(pic_name, loop, sec, ep):
@@ -162,11 +166,15 @@ def text_reader(region, pos):
 def record_result():
     with open("C:\\Users\\tanet\\OneDrive\\รูปภาพ\\Samsung Gallery\\CookieRun\\run_record.csv", mode='a', newline='',
               encoding='UTF-8') as f:
-        box = text_reader(BOX_AMOUNT_LOCATION, game_pos())[0][-1]
-        coin = text_reader(COIN_AMOUNT_LOCATION, game_pos())[0].replace(',', '')
-        exp = text_reader(EXP_AMOUNT_LOCATION, game_pos())[0].replace(',', '')
+        box: list = text_reader(BOX_AMOUNT_LOCATION, game_pos())
+        coin: list = text_reader(COIN_AMOUNT_LOCATION, game_pos())
+        exp: list = text_reader(EXP_AMOUNT_LOCATION, game_pos())
+
+        box_value = box[0][-1] if box else "N/A"
+        coin_value = coin[0].replace(',', '') if coin else "N/A"
+        exp_value = exp[0].replace(',', '') if exp else "N/A"
         f.write(
-            f'{box}, {coin}, {exp}, ')
+            f'{box_value}, {coin_value}, {exp_value}, ')
 
 
 def record_trans(count, status):
