@@ -30,7 +30,7 @@ def click(pic_name, loop, sec, ep):
         pos = screen.find_bitmap(a)
         if pos:
             print(f'Found! click.')
-            autopy.mouse.move(pos[0] + random.randrange(0, 200), pos[1] + random.randrange(0, 80))
+            autopy.mouse.move(pos[0] + random.randrange(a.width()), pos[1] + random.randrange(a.height()))
             autopy.mouse.click()
             break
         print('Not found! Find again.')
@@ -184,7 +184,7 @@ def reset_game(ep):
         pos = screen.find_bitmap(app_icon)
         if pos:
             print('Found! click.')
-            autopy.mouse.move(pos[0] + random.randrange(60), pos[1] + random.randrange(60))
+            autopy.mouse.move(pos[0] + random.randrange(app_icon.width()), pos[1] + random.randrange(app_icon.height()))
             autopy.mouse.click()
             time.sleep(1)
         else:
