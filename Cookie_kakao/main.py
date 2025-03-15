@@ -48,7 +48,7 @@ def open_box(ep):
         pos = screen.find_bitmap(a)
         if pos:
             print(f'Found! click.')
-            autopy.mouse.move(pos[0] + random.randrange(0, 200), pos[1] + random.randrange(0, 80))
+            autopy.mouse.move(pos[0] + random.randrange(a.width()), pos[1] + random.randrange(a.height()))
             autopy.mouse.click()
             break
         print('Not found! Find again.')
