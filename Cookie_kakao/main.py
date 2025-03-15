@@ -14,6 +14,7 @@ line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 
 GET_BOX_LOCATION = ((541, 642), (730, 701))
 FAST_START_LOCATION = ((588, 318), (695, 428))
+CLEAR_ALL_LOCATION = (890, 95)
 
 
 def game_pos():
@@ -175,7 +176,7 @@ def reset_game(ep):
         else:
             continue
         print('Click clear all.')
-        autopy.mouse.move(game_pos()[0] + 894, game_pos()[1] + 95)
+        autopy.mouse.move(game_pos()[0] + CLEAR_ALL_LOCATION[0], game_pos()[1] + CLEAR_ALL_LOCATION[1])
         autopy.mouse.click()
         time.sleep(1)
         print('Find CookieRun Icon.')
