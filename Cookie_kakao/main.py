@@ -1,6 +1,7 @@
 import os
 import random
 import datetime
+import subprocess
 import autopy
 import time
 from linebot import LineBotApi
@@ -19,7 +20,7 @@ reader = easyocr.Reader(['en'], gpu=True)
 
 CLEAR_ALL_LOCATION = (890, 95)
 GET_BOX_LOCATION = ((541, 642), (730, 701))
-FAST_START_LOCATION = ((588, 318), (695, 428))
+FAST_START_LOCATION = ((598, 342), (685, 414))
 BOX_AMOUNT_LOCATION = ((1050, 243), (1113, 290))
 COIN_AMOUNT_LOCATION = ((962, 404), (1123, 464))
 EXP_AMOUNT_LOCATION = ((962, 483), (1123, 547))
@@ -114,7 +115,7 @@ def is_run_correct(fast: bool):
             pos = game_pos()
             if screen.find_bitmap(a):
                 print('Cookie\'s running')
-                autopy.mouse.move(pos[0] + random.randrange(FAST_START_LOCATION[0][1], FAST_START_LOCATION[1][0]),
+                autopy.mouse.move(pos[0] + random.randrange(FAST_START_LOCATION[0][0], FAST_START_LOCATION[1][0]),
                                   pos[1] + random.randrange(FAST_START_LOCATION[0][1], FAST_START_LOCATION[1][1]))
                 autopy.mouse.click()
                 return
@@ -216,38 +217,9 @@ def reset_game(ep):
     record_error()
     print('Error! Reset game...')
     while True:
-        print('Find recent button.')
-        screen = autopy.bitmap.capture_screen()
-        recent_button = autopy.bitmap.Bitmap.open('pic\\recent_app.png')
-        pos = screen.find_bitmap(recent_button)
-        if pos:
-            print('Found! click.')
-            autopy.mouse.move(pos[0] + random.randrange(20), pos[1] + random.randrange(20))
-            autopy.mouse.click()
-            time.sleep(1)
-        else:
-            continue
-        print('Click clear all.')
-        autopy.mouse.move(game_pos()[0] + CLEAR_ALL_LOCATION[0], game_pos()[1] + CLEAR_ALL_LOCATION[1])
-        autopy.mouse.click()
-        time.sleep(1)
-        print('Find CookieRun Icon.')
-        screen = autopy.bitmap.capture_screen()
-        app_icon = autopy.bitmap.Bitmap.open('pic\\app_icon.png')
-        pos = screen.find_bitmap(app_icon)
-        if pos:
-            print('Found! click.')
-            autopy.mouse.move(pos[0] + random.randrange(app_icon.width), pos[1] + random.randrange(app_icon.height))
-            autopy.mouse.click()
-            time.sleep(1)
-        else:
-            continue
-        # time.sleep(15)
-        # print('Is game ready?')
-        # pos = start1_pos()
-        # if pos:
-        #     print('Game\'s ready!!')
-        #     return
+        print("Reopen Bluestack.")
+        subprocess.run(["taskkill", "/im", "HD-Player.exe", "/f"])
+        os.startfile(r"C:\Users\tanet\OneDrive\เดสก์ท็อป\쿠키런 - BlueStacks App Player 15.lnk")
         for _ in range(12):
             time.sleep(5)
             print('Is game ready?')
@@ -268,7 +240,7 @@ def main():
         click('start2.png', 30, 1, ep)
         record_trans(run_count, 0)
         is_run_correct(fast)
-        click('result.png', 60, 5, ep)
+        click('result.png', 80, 5, ep)
         run_count += 1
         record_trans(run_count, 1)
         open_box(ep)
