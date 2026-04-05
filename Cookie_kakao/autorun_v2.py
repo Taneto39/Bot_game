@@ -1,14 +1,13 @@
-# from concurrent.futures import ThreadPoolExecutor
+import cv2
 import subprocess
 import datetime
 import random
 import time
 import os
-import pyautogui as pag
 from dotenv import load_dotenv
 # import easyocr
 # import mss
-# import numpy as np
+import numpy as np
 import requests
 import logging
 
@@ -16,17 +15,14 @@ load_dotenv()
 NTFY_USERNAME = os.getenv("NTFY_USERNAME")
 NTFY_PASSWORD = os.getenv("NTFY_PASSWORD")
 
-# CLEAR_ALL_LOCATION = (890, 95)
-GET_BOX_LOCATION = ((541, 642), (730, 701))
-FAST_START_LOCATION = ((598, 342), (685, 414))
-BOX_AMOUNT_LOCATION = ((1050, 243), (1113, 290))
-COIN_AMOUNT_LOCATION = ((962, 404), (1123, 464))
-EXP_AMOUNT_LOCATION = ((962, 483), (1123, 547))
+FAST_START_LOCATION = (739, 352, 160, 160)  # x y w h
 
 CLICK_CONFIG = {
     "start1.png": {"loop": 30, "delay": 1},
     "start2.png": {"loop": 30, "delay": 1},
     "result.png": {"loop": 80, "delay": 5},
+    "open_box.png": {"loop": 10, "delay": 1},
+    "get_reward.png": {"loop": 10, "delay": 1},
 }
 
 # READER = easyocr.Reader(['en'], gpu=False)
@@ -38,8 +34,6 @@ logging.basicConfig(
     encoding="utf-8",
     filemode="a",
 )
-
-pag.useImageNotFoundException(False)
 
 
 def ntfy_publish(title, msg, priority=3):
@@ -62,7 +56,7 @@ def record_error(type_error):
         dt = datetime.datetime.now().strftime('%Y/%m/%d %I:%M:%S %p')
         f.write(f'{dt}, Error.\n')
     dt = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    pag.screenshot(fr"C:\Users\tanet\OneDrive\รูปภาพ\Samsung Gallery\CookieRun\error_pic\error_{dt}.png")
+    adb_save_screenshot(fr"C:\Users\tanet\OneDrive\รูปภาพ\Samsung Gallery\CookieRun\error_pic\error_{dt}.png")
     ntfy_publish(title="Error", msg=f"Error got caught: {type_error}")
 
 
@@ -98,43 +92,82 @@ def record_trans(count):
 #     return executor.submit(text_reader, region, pos)
 
 
-def game_pos():
-    pos = pag.locateOnScreen(r"pic\blueStackIcon.png")  # left top width height
-    if not pos:
-        logging.error("Error: BlueStack icon not found!")
-        return None
-    return pos
+def adb_save_screenshot(output_file):
+    try:
+        with open(output_file, "wb") as f:
+            subprocess.run(
+                ["adb", "exec-out", "screencap", "-p"],
+                stdout=f,
+                check=True
+            )
+        print(f"Saved screenshot to {output_file}")
+    except subprocess.CalledProcessError:
+        print("ADB command failed")
 
 
-def click(pic_name, ep):
-    cfg = CLICK_CONFIG.get(pic_name, {})
+def adb_screenshot_to_cv2():
+    result = subprocess.run(
+        args=["adb", "exec-out", "screencap", "-p"],
+        stdout=subprocess.PIPE
+    )
+
+    img_bytes = result.stdout
+
+    img_array = np.frombuffer(img_bytes, np.uint8)
+    def_img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    return def_img
+
+
+def random_point_in_template(box):
+    x, y, w, h = box
+    return random.randint(x, x + w - 1), random.randint(y, y + h - 1)
+
+
+def template_pos(template_path):
+    screen = adb_screenshot_to_cv2()
+    template = cv2.imread(template_path)
+
+    result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
+    _, max_val, _, max_loc = cv2.minMaxLoc(result)
+
+    if max_val > 0.8:
+        h, w = template.shape[:2]
+        x, y = max_loc
+        return random_point_in_template((x, y, w, h))
+
+    return None
+
+
+def adb_tap(pos):
+    subprocess.run(["adb", "shell", "input", "tap", str(pos[0]), str(pos[1])])
+
+
+def click(template_file):
+    cfg = CLICK_CONFIG.get(template_file, {})
     loop = cfg.get("loop", 30)
     delay = cfg.get("delay", 1)
-    path = f"pic/{ep}/{pic_name}"
+    path = f"template/{template_file}"
 
     for _ in range(loop):
-        print(f'Find {pic_name}...')
+        print(f'Find {template_file}...')
 
-        pos = pag.locateOnScreen(path)
+        pos = template_pos(path)
 
         if pos:
-            logging.info(f"{pic_name} found! click.")
+            logging.info(f"{template_file} found! click.")
 
-            if pic_name == "result.png":
+            if template_file == "result.png":
                 time.sleep(5)
                 # record_result()
 
-            x, y, w, h = pos
-            pag.click(
-                x + random.randrange(w),
-                y + random.randrange(h)
-            )
+            adb_tap(pos)
             return True
 
         print('Not found! retry...')
         time.sleep(delay)
 
-    record_error(pic_name)
+    record_error(template_file)
     return False
 
 
@@ -145,18 +178,11 @@ def is_run_correct(fast: bool):
     for _ in range(loop):
         print("Is cookie running?")
 
-        if pag.locateOnScreen(r"pic/heart.png"):
+        if template_pos(r"template/heart.png"):
             logging.info("Cookie is running")
 
             if fast:
-                pos = game_pos()
-                if not pos:
-                    record_error("no game pos")
-                    return
-                pag.click(
-                    pos[0] + random.randrange(FAST_START_LOCATION[0][0], FAST_START_LOCATION[1][0]),
-                    pos[1] + random.randrange(FAST_START_LOCATION[0][1], FAST_START_LOCATION[1][1])
-                )
+                adb_tap(random_point_in_template(FAST_START_LOCATION))
 
             return True
 
@@ -164,70 +190,41 @@ def is_run_correct(fast: bool):
         time.sleep(delay)
 
     record_error("Not run")
+    reset_game()
     return False
 
 
-def get_box(ep):
-    for _ in range(10):
-        print("Get reward.")
-        pos = game_pos()
-        if not pos:
-            record_error("no game pos")
-            return
-        pag.click(pos[0] + random.randrange(GET_BOX_LOCATION[0][0], GET_BOX_LOCATION[1][0]),
-                  pos[1] + random.randrange(GET_BOX_LOCATION[0][1], GET_BOX_LOCATION[1][1]))
-        time.sleep(1)
-        if pag.locateOnScreen(fr"pic/{ep}/start1.png"):
-            logging.info("Got reward.")
-            return
-        print("Can't get reward. Try again...")
-    else:
-        record_error("Can't get box.")
-
-
-def open_box(ep):
-    for _ in range(10):
-        print(f"Find open_box.png in screen...")
-        pos = pag.locateOnScreen(r"pic/open_box.png")
-        if pos:
-            logging.info(f"Box is found ! click.")
-            pag.click(pos[0] + random.randrange(pos.width), pos[1] + random.randrange(pos.height))
-            break
-        print("Not found! Find again.")
-        time.sleep(1)
-    else:
-        return
-    get_box(ep)
-
-
-def check_before_next_loop(ep):
-    if pag.locateOnScreen(f'pic/{ep}/start1.png'):
+def check_before_next_loop():
+    time.sleep(5)
+    if template_pos(f"template/start1.png"):
         return True
-    record_error("notification interrupted")
-    reset_game(ep)
+    record_error("popup interrupted")
+    reset_game()
     return False
 
 
-def reset_game(ep):
-    logging.error('Error! Reset game...')
-    # while True:
-    for _ in range(3):
-        print("Reopen Bluestack.")
-        subprocess.run(["taskkill", "/im", "HD-Player.exe", "/f"])
-        os.startfile(r"C:\Users\tanet\OneDrive\เดสก์ท็อป\쿠키런 - BlueStacks App Player 15.lnk")
-        for _ in range(12):
-            time.sleep(5)
-            print('Is game ready?')
-            if pag.locateOnScreen(fr"pic/{ep}/start1.png"):
-                logging.info(f"Game is ready!!")
-                return
-            else:
-                print('Not found! Find again..')
+def reset_game(pkg="com.devsisters.CookieRunForKakao"):
+    # ปิดเกม
+    subprocess.run(["adb", "shell", "am", "force-stop", pkg])
+
+    # รอให้ระบบเคลียร์ process
+    time.sleep(1)
+
+    # เปิดเกมใหม่
+    subprocess.run([
+        "adb", "shell", "monkey",
+        "-p", pkg,
+        "-c", "android.intent.category.LAUNCHER",
+        "1"
+    ])
+
+    # รอโหลดเกม
+    time.sleep(5)
 
 
 def capture(count):
     if count % 20 == 0:
-        pag.screenshot(r"C:\Users\tanet\OneDrive\รูปภาพ\Samsung Gallery\CookieRun\recently.png")
+        adb_save_screenshot(r"C:\Users\tanet\OneDrive\รูปภาพ\Samsung Gallery\CookieRun\recently.png")
 
 
 # def record_result():
@@ -241,19 +238,22 @@ def capture(count):
 
 
 def main():
-    ep = int(input("Enter Ep.:"))
+    # ep = int(input("Enter Ep.:"))
     fast = True if not input("Enable faststart? type something for Unable:") else False
     run_count = 0
     while True:
-        click('start1.png', ep)
-        click('start2.png', ep)
+        click('start1.png')
+        click('start2.png')
         # record_trans(run_count)
         is_run_correct(fast)
-        click('result.png', ep)
+        click('result.png')
         run_count += 1
-        open_box(ep)
-        check_before_next_loop(ep)
+        # open_box(ep)
+        click("open_box.png")
+        click("get_reward.png")
+        check_before_next_loop()
         capture(run_count)
+        time.sleep(5)
 
 
 if __name__ == '__main__':
